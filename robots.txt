@@ -2,4 +2,4 @@
 User-agent:*
 Disallow:
 
-Sitemap: https://yumuzhihan.github.io/blog/sitemap.xml
+Sitemap: https://blog.yumuzhihan.top/sitemap.xml
