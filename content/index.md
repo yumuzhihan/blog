@@ -1,6 +1,4 @@
 ---
-title: Welcome to Quartz
+title: Welcome to Yumu.log
 ---
-
-This is a blank Quartz installation.
-See the [documentation](https://quartz.jzhao.xyz) for how to get started.
+欢迎来到 Yumu.log，这里会分享我的学习笔记以及一些想法。
