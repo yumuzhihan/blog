@@ -28,7 +28,7 @@ jobs:
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          ARGS: "-avz --delete"
+          ARGS: "-avz -vvv --delete -e 'ssh -p ${{ secrets.SERVER_PORT }} -o StrictHostKeyChecking=no'"
           SOURCE: "public/"
           REMOTE_HOST: ${{ secrets.SERVER_HOST }}
           REMOTE_USER: ${{ secrets.SERVER_USERNAME }}
