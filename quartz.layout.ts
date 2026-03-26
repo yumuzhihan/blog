@@ -40,30 +40,40 @@ export const defaultContentPageLayout: PageLayout = {
     Component.Explorer({
       title: "目录",
       sortFn: (a, b) => {
-        // 1. 尝试读取 frontmatter 中的 order 属性
-        // 使用 as any 绕过 TS 对 ContentDetails 的严格类型检查
-        const getOrder = (node: any) => {
-          // 兼容性写法：优先读取 node.data（新版），降级读取 node.file（老版）
-          const frontmatter = node.data?.frontmatter ?? node.file?.frontmatter
-          return frontmatter?.order ? Number(frontmatter.order) : 100
+        // 第一步：在函数的最开头，直接把 a 和 b 暴力断言为 any，彻底干掉 TS 的类型检查
+        const nodeA = a as any
+        const nodeB = b as any
+
+        // 第二步：使用 nodeA 和 nodeB 去获取 order，用最扁平的 if 判断
+        let orderA = 100
+        if (nodeA.file && nodeA.file.frontmatter && nodeA.file.frontmatter.order) {
+          orderA = Number(nodeA.file.frontmatter.order)
+        } else if (nodeA.data && nodeA.data.frontmatter && nodeA.data.frontmatter.order) {
+          orderA = Number(nodeA.data.frontmatter.order)
         }
 
-        const orderA = getOrder(a)
-        const orderB = getOrder(b)
+        let orderB = 100
+        if (nodeB.file && nodeB.file.frontmatter && nodeB.file.frontmatter.order) {
+          orderB = Number(nodeB.file.frontmatter.order)
+        } else if (nodeB.data && nodeB.data.frontmatter && nodeB.data.frontmatter.order) {
+          orderB = Number(nodeB.data.frontmatter.order)
+        }
 
-        // 2. 如果两者 order 不同，则按从小到大排序
+        // 第三步：核心排序逻辑
         if (orderA !== orderB) {
           return orderA - orderB
         }
 
-        // 3. 如果 order 相同（或者都没设置），则退回到 Quartz 的默认排序逻辑：
-        // 同级别下，按展示名称的字母/拼音顺序排列
-        if ((!a.isFolder && !b.isFolder) || (a.isFolder && b.isFolder)) {
-          return a.displayName.localeCompare(b.displayName)
+        // 兼容新版 isFolder 和旧版的判定逻辑
+        const aIsFolder = nodeA.isFolder ?? (!nodeA.file && !nodeA.data)
+        const bIsFolder = nodeB.isFolder ?? (!nodeB.file && !nodeB.data)
+
+        if (aIsFolder !== bIsFolder) {
+          return aIsFolder ? -1 : 1
         }
 
-        // 4. 文件夹排在文件前面
-        return a.isFolder && !b.isFolder ? -1 : 1
+        // 同级别下按名称字母/拼音顺序排序
+        return nodeA.displayName.localeCompare(nodeB.displayName)
       },
     }),
   ],
@@ -92,30 +102,40 @@ export const defaultListPageLayout: PageLayout = {
     Component.Explorer({
       title: "目录",
       sortFn: (a, b) => {
-        // 1. 尝试读取 frontmatter 中的 order 属性
-        // 使用 as any 绕过 TS 对 ContentDetails 的严格类型检查
-        const getOrder = (node: any) => {
-          // 兼容性写法：优先读取 node.data（新版），降级读取 node.file（老版）
-          const frontmatter = node.data?.frontmatter ?? node.file?.frontmatter
-          return frontmatter?.order ? Number(frontmatter.order) : 100
+        // 第一步：在函数的最开头，直接把 a 和 b 暴力断言为 any，彻底干掉 TS 的类型检查
+        const nodeA = a as any
+        const nodeB = b as any
+
+        // 第二步：使用 nodeA 和 nodeB 去获取 order，用最扁平的 if 判断
+        let orderA = 100
+        if (nodeA.file && nodeA.file.frontmatter && nodeA.file.frontmatter.order) {
+          orderA = Number(nodeA.file.frontmatter.order)
+        } else if (nodeA.data && nodeA.data.frontmatter && nodeA.data.frontmatter.order) {
+          orderA = Number(nodeA.data.frontmatter.order)
         }
 
-        const orderA = getOrder(a)
-        const orderB = getOrder(b)
+        let orderB = 100
+        if (nodeB.file && nodeB.file.frontmatter && nodeB.file.frontmatter.order) {
+          orderB = Number(nodeB.file.frontmatter.order)
+        } else if (nodeB.data && nodeB.data.frontmatter && nodeB.data.frontmatter.order) {
+          orderB = Number(nodeB.data.frontmatter.order)
+        }
 
-        // 2. 如果两者 order 不同，则按从小到大排序
+        // 第三步：核心排序逻辑
         if (orderA !== orderB) {
           return orderA - orderB
         }
 
-        // 3. 如果 order 相同（或者都没设置），则退回到 Quartz 的默认排序逻辑：
-        // 同级别下，按展示名称的字母/拼音顺序排列
-        if ((!a.isFolder && !b.isFolder) || (a.isFolder && b.isFolder)) {
-          return a.displayName.localeCompare(b.displayName)
+        // 兼容新版 isFolder 和旧版的判定逻辑
+        const aIsFolder = nodeA.isFolder ?? (!nodeA.file && !nodeA.data)
+        const bIsFolder = nodeB.isFolder ?? (!nodeB.file && !nodeB.data)
+
+        if (aIsFolder !== bIsFolder) {
+          return aIsFolder ? -1 : 1
         }
 
-        // 4. 文件夹排在文件前面
-        return a.isFolder && !b.isFolder ? -1 : 1
+        // 同级别下按名称字母/拼音顺序排序
+        return nodeA.displayName.localeCompare(nodeB.displayName)
       },
     }),
   ],
