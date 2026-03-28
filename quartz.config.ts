@@ -9,7 +9,7 @@ import * as Plugin from "./quartz/plugins"
 const config: QuartzConfig = {
   configuration: {
     pageTitle: "Yumu.log",
-    pageTitleSuffix: "",
+    pageTitleSuffix: " - Yumu.log",
     enableSPA: true,
     enablePopovers: true,
     analytics: {
