@@ -39,41 +39,57 @@ export const defaultContentPageLayout: PageLayout = {
     }),
     Component.Explorer({
       title: "目录",
+      // mapFn 只在 Node.js 后端运行，用于去掉显示名称中的数字前缀
+      mapFn: (node) => {
+        const nodeAsAny = node as any
+        const match = nodeAsAny.displayName.match(/^\d+-(.*)/)
+        if (match) {
+          nodeAsAny.displayName = match[1].trim()
+        }
+      },
       sortFn: (a, b) => {
-        // 第一步：在函数的最开头，直接把 a 和 b 暴力断言为 any，彻底干掉 TS 的类型检查
         const nodeA = a as any
         const nodeB = b as any
 
-        // 第二步：使用 nodeA 和 nodeB 去获取 order，用最扁平的 if 判断
-        let orderA = 100
-        if (nodeA.file && nodeA.file.frontmatter && nodeA.file.frontmatter.order) {
-          orderA = Number(nodeA.file.frontmatter.order)
-        } else if (nodeA.data && nodeA.data.frontmatter && nodeA.data.frontmatter.order) {
-          orderA = Number(nodeA.data.frontmatter.order)
+        // --- 彻底拍平的提取逻辑，拒绝任何内部嵌套函数 ---
+
+        // 提取 NodeA 的数字前缀
+        let orderA = 99999
+        const slugA = nodeA.data?.slug || nodeA.file?.slug || nodeA.name || ""
+        const partsA = slugA.split("/")
+        const fileNameA = partsA[partsA.length - 1] || ""
+        const matchA = fileNameA.match(/^(\d+)-/)
+        if (matchA) {
+          orderA = parseInt(matchA[1], 10)
         }
 
-        let orderB = 100
-        if (nodeB.file && nodeB.file.frontmatter && nodeB.file.frontmatter.order) {
-          orderB = Number(nodeB.file.frontmatter.order)
-        } else if (nodeB.data && nodeB.data.frontmatter && nodeB.data.frontmatter.order) {
-          orderB = Number(nodeB.data.frontmatter.order)
+        // 提取 NodeB 的数字前缀
+        let orderB = 99999
+        const slugB = nodeB.data?.slug || nodeB.file?.slug || nodeB.name || ""
+        const partsB = slugB.split("/")
+        const fileNameB = partsB[partsB.length - 1] || ""
+        const matchB = fileNameB.match(/^(\d+)-/)
+        if (matchB) {
+          orderB = parseInt(matchB[1], 10)
         }
 
-        // 第三步：核心排序逻辑
+        // 1. 按提取出的序号排序
         if (orderA !== orderB) {
           return orderA - orderB
         }
 
-        // 兼容新版 isFolder 和旧版的判定逻辑
+        // 2. 文件夹排在前面
         const aIsFolder = nodeA.isFolder ?? (!nodeA.file && !nodeA.data)
         const bIsFolder = nodeB.isFolder ?? (!nodeB.file && !nodeB.data)
-
         if (aIsFolder !== bIsFolder) {
           return aIsFolder ? -1 : 1
         }
 
-        // 同级别下按名称字母/拼音顺序排序
-        return nodeA.displayName.localeCompare(nodeB.displayName)
+        // 3. 按名字兜底排序
+        return nodeA.displayName.localeCompare(nodeB.displayName, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        })
       },
     }),
   ],
@@ -101,41 +117,57 @@ export const defaultListPageLayout: PageLayout = {
     }),
     Component.Explorer({
       title: "目录",
+      // mapFn 只在 Node.js 后端运行，用于去掉显示名称中的数字前缀
+      mapFn: (node) => {
+        const nodeAsAny = node as any
+        const match = nodeAsAny.displayName.match(/^\d+-(.*)/)
+        if (match) {
+          nodeAsAny.displayName = match[1].trim()
+        }
+      },
       sortFn: (a, b) => {
-        // 第一步：在函数的最开头，直接把 a 和 b 暴力断言为 any，彻底干掉 TS 的类型检查
         const nodeA = a as any
         const nodeB = b as any
 
-        // 第二步：使用 nodeA 和 nodeB 去获取 order，用最扁平的 if 判断
-        let orderA = 100
-        if (nodeA.file && nodeA.file.frontmatter && nodeA.file.frontmatter.order) {
-          orderA = Number(nodeA.file.frontmatter.order)
-        } else if (nodeA.data && nodeA.data.frontmatter && nodeA.data.frontmatter.order) {
-          orderA = Number(nodeA.data.frontmatter.order)
+        // --- 彻底拍平的提取逻辑，拒绝任何内部嵌套函数 ---
+
+        // 提取 NodeA 的数字前缀
+        let orderA = 99999
+        const slugA = nodeA.data?.slug || nodeA.file?.slug || nodeA.name || ""
+        const partsA = slugA.split("/")
+        const fileNameA = partsA[partsA.length - 1] || ""
+        const matchA = fileNameA.match(/^(\d+)-/)
+        if (matchA) {
+          orderA = parseInt(matchA[1], 10)
         }
 
-        let orderB = 100
-        if (nodeB.file && nodeB.file.frontmatter && nodeB.file.frontmatter.order) {
-          orderB = Number(nodeB.file.frontmatter.order)
-        } else if (nodeB.data && nodeB.data.frontmatter && nodeB.data.frontmatter.order) {
-          orderB = Number(nodeB.data.frontmatter.order)
+        // 提取 NodeB 的数字前缀
+        let orderB = 99999
+        const slugB = nodeB.data?.slug || nodeB.file?.slug || nodeB.name || ""
+        const partsB = slugB.split("/")
+        const fileNameB = partsB[partsB.length - 1] || ""
+        const matchB = fileNameB.match(/^(\d+)-/)
+        if (matchB) {
+          orderB = parseInt(matchB[1], 10)
         }
 
-        // 第三步：核心排序逻辑
+        // 1. 按提取出的序号排序
         if (orderA !== orderB) {
           return orderA - orderB
         }
 
-        // 兼容新版 isFolder 和旧版的判定逻辑
+        // 2. 文件夹排在前面
         const aIsFolder = nodeA.isFolder ?? (!nodeA.file && !nodeA.data)
         const bIsFolder = nodeB.isFolder ?? (!nodeB.file && !nodeB.data)
-
         if (aIsFolder !== bIsFolder) {
           return aIsFolder ? -1 : 1
         }
 
-        // 同级别下按名称字母/拼音顺序排序
-        return nodeA.displayName.localeCompare(nodeB.displayName)
+        // 3. 按名字兜底排序
+        return nodeA.displayName.localeCompare(nodeB.displayName, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        })
       },
     }),
   ],
